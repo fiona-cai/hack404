@@ -3,6 +3,7 @@ import React, { useState } from "react";
 
 export default function LoginPage() {
   const [phone, setPhone] = useState("");
+  const [showBirthday, setShowBirthday] = useState(false);
 
   // Format phone number as (XXX) XXX-XXXX
   function formatPhone(input: string) {
@@ -11,6 +12,11 @@ export default function LoginPage() {
     if (digits.length <= 3) return digits;
     if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  }
+
+  if (showBirthday) {
+    const AvatarPage = require("./avatar").default;
+    return <AvatarPage />;
   }
 
   return (
@@ -30,8 +36,8 @@ export default function LoginPage() {
         transition: "background 2s linear"
       }}
     >
-      <div style={{ width: "100%", maxWidth: 400, margin: "0 auto" }}>
-        <div style={{ marginTop: 60, textAlign: "center" }}>
+      <div style={{ width: "100%", maxWidth: 400, margin: "0 auto", maxHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
+        <div style={{ marginTop: 32, textAlign: "center" }}>
           <img src="/images/icon.png" alt="gotcha logo" style={{ width: 200, height: "auto", margin: "0 auto" }} />
         </div>
         <div style={{ marginTop: 32, textAlign: "center" }}>
@@ -50,7 +56,8 @@ export default function LoginPage() {
             borderRadius: 20,
             padding: "8px 20px",
             maxWidth: 320,
-            margin: "0 auto"
+            margin: "0 auto",
+            position: "relative"
           }}>
             <p className="pr-4">📞</p>
             <input
@@ -71,9 +78,41 @@ export default function LoginPage() {
                 width: "100%",
                 letterSpacing: 2
               }}
+              onKeyDown={e => {
+                if (phone.length === 10 && (e.key === 'Enter' || e.key === 'ArrowRight')) {
+                  setShowBirthday(true);
+                }
+              }}
             />
+            {phone.length === 10 && (
+              <button
+                aria-label="Continue"
+                onClick={e => {
+                  e.preventDefault();
+                  setShowBirthday(true);
+                }}
+                type="button"
+                style={{
+                  position: "absolute",
+                  right: 10,
+                  background: "none",
+                  border: "none",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  height: 32
+                }}
+                tabIndex={0}
+              >
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="14" cy="14" r="14" fill="#fff" fillOpacity="0.15"/>
+                  <path d="M11 9l5 5-5 5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </button>
+            )}
           </div>
         </div>
+        <div style={{ flex: 1 }} />
         <div style={{ position: "absolute", left: 0, bottom: 0, width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 24px", color: "#fff", opacity: 0.5 }}>
           <span>9:41</span>
           <span style={{ display: "flex", gap: 8 }}>
