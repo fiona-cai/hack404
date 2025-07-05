@@ -5,8 +5,7 @@ const avatars = [
   "/images/avatar1.png",
   "/images/avatar2.png",
   "/images/avatar3.png",
-  "/images/avatar4.png",
-  "/images/avatar5.png"
+  "/images/avatar4.png"
 ];
 
 export default function AvatarPage({ onComplete }: { onComplete?: () => void } = {}) {
@@ -116,10 +115,10 @@ export default function AvatarPage({ onComplete }: { onComplete?: () => void } =
       >
         <div style={{ position: "relative", zIndex: 1, width: "100%", maxWidth: 400, margin: "0 auto" }}>
           <div style={{ marginTop: 120, textAlign: "center" }}>
-            <div style={{ color: "#fff", fontSize: 32, fontWeight: 700, marginBottom: 32 }}>
+            <div style={{ color: "#fff", fontSize: 32, fontWeight: 700, marginBottom: 64 }}>
               Choose your avatar
             </div>
-            <div style={{ display: "flex", justifyContent: "center", gap: 20, marginBottom: 40 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28, justifyContent: "center", margin: "0 auto 40px auto", width: 220 }}>
               {avatars.map((src, i) => (
                 <button
                   key={src}
@@ -131,14 +130,15 @@ export default function AvatarPage({ onComplete }: { onComplete?: () => void } =
                     background: "none",
                     cursor: "pointer",
                     outline: selectedAvatar === i ? "2px solid #4e54c8" : "none",
-                    width: 64,
-                    height: 64,
+                    width: 100,
+                    height: 100,
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center"
+                    justifyContent: "center",
+                    transition: "box-shadow 0.2s, border 0.2s"
                   }}
                 >
-                  <img src={src} alt={`Avatar ${i+1}`} style={{ width: 56, height: 56, borderRadius: "50%" }} />
+                  <img src={src} alt={`Avatar ${i+1}`} style={{ width: 80, height: 80, borderRadius: "50%" }} />
                 </button>
               ))}
             </div>
@@ -152,13 +152,13 @@ export default function AvatarPage({ onComplete }: { onComplete?: () => void } =
                 padding: "16px 0",
                 fontSize: 18,
                 fontWeight: 500,
-                marginTop: 24,
+                marginTop: 48,
                 cursor: selectedAvatar !== null ? "pointer" : "not-allowed"
               }}
               disabled={selectedAvatar === null}
               onClick={() => selectedAvatar !== null && setShowInterests(true)}
             >
-              Continue
+              Continue to Interests
             </button>
           </div>
         </div>
