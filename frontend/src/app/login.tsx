@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 
-export default function LoginPage() {
+export default function LoginPage({ onComplete }: { onComplete?: () => void } = {}) {
   const [phone, setPhone] = useState("");
   const [showBirthday, setShowBirthday] = useState(false);
 
@@ -16,11 +16,12 @@ export default function LoginPage() {
 
   if (showBirthday) {
     const AvatarPage = require("./avatar").default;
-    return <AvatarPage />;
+    return <AvatarPage onComplete={onComplete} />;
   }
 
   return (
     <div
+      className="animated-bg"
       style={{
         minHeight: "100vh",
         display: "flex",
@@ -159,7 +160,10 @@ export default function LoginPage() {
           --main-gradient-to: #8f94fb;
         }
       }
-      div[style*='min-height: 100vh'] {
+      body, #__next, #root {
+        height: 100%;
+      }
+      .animated-bg {
         animation: gradientShift 12s linear infinite;
       }
     `}</style>

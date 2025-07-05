@@ -1,13 +1,14 @@
+'use client';
+
+import React, { useState } from "react";
 import MapComponent from "./map";
 import LoginPage from "./login";
 
 export default function Home() {
-  // TODO: Replace with real auth logic
-  const isLoggedIn = false;
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   if (!isLoggedIn) {
-    return <LoginPage />;
+    return <LoginPage onComplete={() => setIsLoggedIn(true)} />;
   }
-  return (
-    <MapComponent />
-  );
+  return <MapComponent />;
 }
