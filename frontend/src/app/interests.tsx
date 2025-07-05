@@ -14,7 +14,7 @@ const INTERESTS = [
   { label: "Active", icon: "🏃‍♂️" },
 ];
 
-export default function InterestsPage() {
+export default function InterestsPage({ onComplete }: { onComplete?: () => void } = {}) {
   const [selected, setSelected] = useState<string[]>([]);
 
   function toggleInterest(label: string) {
@@ -128,7 +128,7 @@ export default function InterestsPage() {
               cursor: selected.length > 0 ? "pointer" : "not-allowed"
             }}
             disabled={selected.length === 0}
-            onClick={() => alert("Onboarding complete!")}
+            onClick={onComplete}
           >
             Complete
           </button>

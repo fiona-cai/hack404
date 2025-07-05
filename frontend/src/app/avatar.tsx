@@ -9,13 +9,13 @@ const avatars = [
   "/images/avatar5.png"
 ];
 
-export default function AvatarPage() {
+export default function AvatarPage({ onComplete }: { onComplete?: () => void } = {}) {
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
   const [showInterests, setShowInterests] = useState(false);
 
   if (showInterests) {
     const InterestsPage = require("./interests").default;
-    return <InterestsPage />;
+    return <InterestsPage onComplete={onComplete} />;
   }
 
   return (
