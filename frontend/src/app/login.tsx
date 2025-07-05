@@ -21,6 +21,7 @@ export default function LoginPage() {
 
   return (
     <div
+      className="animated-bg"
       style={{
         minHeight: "100vh",
         display: "flex",
@@ -159,7 +160,10 @@ export default function LoginPage() {
           --main-gradient-to: #8f94fb;
         }
       }
-      div[style*='min-height: 100vh'] {
+      body, #__next, #root {
+        height: 100%;
+      }
+      .animated-bg {
         animation: gradientShift 12s linear infinite;
       }
     `}</style>
