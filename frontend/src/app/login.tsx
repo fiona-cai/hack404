@@ -4,6 +4,15 @@ import React, { useState } from "react";
 export default function LoginPage() {
   const [phone, setPhone] = useState("");
 
+  // Format phone number as (XXX) XXX-XXXX
+  function formatPhone(input: string) {
+    // Remove all non-digit characters
+    const digits = input.replace(/\D/g, "");
+    if (digits.length <= 3) return digits;
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  }
+
   return (
     <div
       style={{
@@ -23,7 +32,7 @@ export default function LoginPage() {
     >
       <div style={{ width: "100%", maxWidth: 400, margin: "0 auto" }}>
         <div style={{ marginTop: 60, textAlign: "center" }}>
-          <img src="/images/icon.png" alt="gotcha logo" style={{ width: 180, height: "auto", margin: "0 auto" }} />
+          <img src="/images/icon.png" alt="gotcha logo" style={{ width: 200, height: "auto", margin: "0 auto" }} />
         </div>
         <div style={{ marginTop: 32, textAlign: "center" }}>
           <div style={{ color: "#fff", fontSize: 18, fontWeight: 400, lineHeight: 1.3 }}>
@@ -46,9 +55,13 @@ export default function LoginPage() {
             <p className="pr-4">📞</p>
             <input
               type="tel"
-              placeholder="416-555-5555"
-              value={phone}
-              onChange={e => setPhone(e.target.value)}
+              placeholder="(416) 555-5555"
+              value={formatPhone(phone)}
+              onChange={e => {
+                // Only allow up to 10 digits
+                const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
+                setPhone(digits);
+              }}
               style={{
                 background: "transparent",
                 border: "none",
