@@ -1,75 +1,48 @@
 'use client';
 
-import Map, {Source} from 'react-map-gl/maplibre';
+import Map from 'react-map-gl/maplibre';
 import {DeckGL} from '@deck.gl/react';
 import {ScenegraphLayer} from '@deck.gl/mesh-layers';
 import type {PickingInfo} from '@deck.gl/core';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useEffect, useMemo, useState } from 'react';
-
-type Coordinates = [longitude: number, latitude: number];
+import { useOrientation } from "@uidotdev/usehooks";
+import {useGeolocated} from 'react-geolocated';
 
 export default function MapComponent() {
-  const [viewState, setViewState] = useState({
-    longitude: -122.4, // Default fallback coordinates (San Francisco)
-    latitude: 37.8,
-    zoom: 17,
-    bearing: -60,
-    pitch: 60
-  });
-  const [loading, setLoading] = useState(true);
-  const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
   const [isWalking, setIsWalking] = useState(false);
+
+  const orientation = useOrientation();
+  const {coords, isGeolocationAvailable, isGeolocationEnabled } =
+    useGeolocated({
+        positionOptions: {
+        enableHighAccuracy: false,
+    },
+    userDecisionTimeout: 5000,
+  });
 
   // Create the 3D model layer
   const layers = useMemo(() => {
-    if (!userLocation) return [];
+    if (!coords) return [];
     
     return [
-      new ScenegraphLayer<Coordinates>({
+      new ScenegraphLayer<GeolocationCoordinates>({
         id: 'person-3d-model',
-        data: [userLocation],
-        getPosition: (d: Coordinates) => d,
-        getOrientation: () => [0, 180, 90], // Keep model upright
+        data: [coords],
+        getPosition: (d: GeolocationCoordinates ) => [d.longitude, d.latitude], // Use longitude and latitude for position
+        getOrientation: () => [0, 0, 90], // Keep model upright
         scenegraph: '/models/timmy.glb',
         sizeScale: 0.05, // Smaller scale for map overlay
         _animations: {
           [isWalking ? 'Walking' : 'BreathingIdle']: {speed: 1}
         },
-        _lighting: 'pbr',
+        _lighting: 'flat',
         pickable: false,
       })
     ];
-  }, [userLocation, isWalking]);
+  }, [coords, isWalking]);
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const coords: Coordinates = [position.coords.longitude, position.coords.latitude];
-          setViewState(prev => ({
-            ...prev,
-            longitude: position.coords.longitude,
-            latitude: position.coords.latitude
-          }));
-          setUserLocation(coords);
-          setLoading(false);
-        },
-        (error) => {
-          console.error('Error getting location:', error);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 10000,
-          maximumAge: 60000
-        }
-      );
-    } else {
-      console.error('Geolocation is not supported by this browser');
-    }
-  }, []);
-
-  if (loading) {
+  if (!coords || !isGeolocationAvailable || !isGeolocationEnabled) {
     return (
       <div style={{
         display: 'flex',
@@ -77,7 +50,8 @@ export default function MapComponent() {
         alignItems: 'center',
         width: '100vw',
         height: '100vh',
-        backgroundColor: '#f0f0f0'
+        backgroundColor: '#f0f0f0',
+        color: '#000000',
       }}>
         <div>Loading your location...</div>
       </div>
@@ -87,11 +61,17 @@ export default function MapComponent() {
   return (
     <div style={{position: 'relative', width: '100vw', height: '100vh'}}>
       <DeckGL
-        initialViewState={viewState}
+        initialViewState={{
+            longitude: coords.longitude,
+            latitude: coords.latitude,
+            zoom: 17,
+            bearing: coords.heading || 0, // Use heading if available
+            pitch: 60
+        }}
         controller={true}
         layers={layers}
         style={{width: '100vw', height: '100vh'}}
-        getTooltip={({object}: PickingInfo<Coordinates>) => 
+        getTooltip={({object}: PickingInfo<GeolocationCoordinates>) => 
           object ? {text: "Your location - 3D model marker"} : null
         }
       >
@@ -110,14 +90,6 @@ export default function MapComponent() {
           padding: '12px 24px',
           backgroundColor: isWalking ? '#4CAF50' : '#2196F3',
           color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          cursor: 'pointer',
-          fontSize: '16px',
-          fontWeight: 'bold',
-          boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
-          zIndex: 1000,
-          transition: 'all 0.3s ease'
         }}
         onMouseEnter={(e) => {
           e.currentTarget.style.transform = 'scale(1.05)';
