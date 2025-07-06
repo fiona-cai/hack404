@@ -30,15 +30,29 @@ export default function ClientHome() {
       try {
         const response = await fetch('/api/check-auth');
         const authData = await response.json();
-        // console.log('Auth response:', authData);
+        console.log('Auth response:', authData);
         
         setIsLoggedIn(authData.isLoggedIn);
         setCurrentUserId(authData.userId);
 
-        const dbresponse = await fetch(`/api/get-user?userId=${authData.userId}`);
-        const userData = await dbresponse.json();
-        // console.log('User data:', userData);
-        setUser(userData.user[0]);
+        if (!authData.isLoggedIn) {
+          console.log('User is not logged in');
+          return;
+        }
+        try {
+          const dbresponse = await fetch(`/api/get-user?userId=${authData.userId}`);
+          const userData = await dbresponse.json();
+          console.log('User data:', userData);
+          setUser(userData.user[0] || {
+            avatar: '',
+            birthday: '',
+            interests: [],
+            name: '',
+            phoneNumber: '',
+          });
+        } catch (error) {
+          console.error('Failed to fetch user data:', error);
+        }
 
         // console.log('Auth check:', authData);
         // console.log('User is logged in:', authData.isLoggedIn);
@@ -119,7 +133,7 @@ export default function ClientHome() {
         }}
       />
       {/* <p>{currentUserId} {user.avatar}</p> */}
-      {currentUserId && user.avatar ? <MapComponent avatar={user.avatar} myUserId={currentUserId} /> : <p>Loading...</p>}
+      {currentUserId && user?.avatar ? <MapComponent avatar={user.avatar} myUserId={currentUserId} /> : <p>Loading...</p>}
     </>
   );
 }

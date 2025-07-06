@@ -8,6 +8,9 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { useEffect, useMemo, useState } from 'react';
 import { useOrientation } from "@uidotdev/usehooks";
 import { useGeolocated } from 'react-geolocated';
+import GotchaCardDisplay from './components/GotchaCardDisplay';
+import CatchAnimation from './components/CatchAnimation';
+import { GotchaCard, User as GotchaUser } from '@/lib/gotcha-types';
 
 type User = {
   user_id: number;
@@ -26,6 +29,15 @@ export default function MapComponent({ avatar, myUserId }: { avatar: string, myU
   const [catching, setCatching] = useState<number | null>(null);
   const [catchSuccess, setCatchSuccess] = useState<string | null>(null);
   const [deviceHeading, setDeviceHeading] = useState<number>(0);
+  const [showCard, setShowCard] = useState<{
+    card: GotchaCard;
+    userA: GotchaUser;
+    userB: GotchaUser;
+    eventId: string;
+  } | null>(null);
+  const [showCatchAnimation, setShowCatchAnimation] = useState<{
+    targetUser: { name: string; avatar: string };
+  } | null>(null);
 
   const orientation = useOrientation();
   const { coords, isGeolocationAvailable, isGeolocationEnabled } =
@@ -81,7 +93,7 @@ export default function MapComponent({ avatar, myUserId }: { avatar: string, myU
     );
 
     return [userLayer, ...nearbyLayers];
-  }, [coords, isWalking, nearbyUsers, avatar]);
+  }, [coords, nearbyUsers, avatar]);
 
   // const layers = useMemo(() => {
   //   if (!coords) return [];
@@ -121,7 +133,15 @@ export default function MapComponent({ avatar, myUserId }: { avatar: string, myU
     fetch(`/api/get-nearby?userId=${myUserId}`)
       .then(res => res.ok ? res.json() : [])
       .then(data => setNearbyUsers(data || []));
-  }, [coords]);
+  }, [coords, myUserId]);
+
+  useEffect(() => {
+    setInterval(() => {
+      fetch(`/api/get-nearby?userId=${myUserId}`)
+        .then(res => res.ok ? res.json() : [])
+        .then(data => setNearbyUsers(data || []));
+    }, 10000); // Update every 10 seconds
+  }, [myUserId]);
 
   useEffect(() => {
     console.log('Current orientation:', orientation);
@@ -146,6 +166,7 @@ export default function MapComponent({ avatar, myUserId }: { avatar: string, myU
   }
 
   function getDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
+    console.log('Calculating distance between:', { lat1, lon1 }, { lat2, lon2 });
     const R = 6371000; // meters
     const toRad = (deg: number) => deg * Math.PI / 180;
     const dLat = toRad(lat2 - lat1);
@@ -167,13 +188,13 @@ export default function MapComponent({ avatar, myUserId }: { avatar: string, myU
           bearing: deviceHeading || coords.heading || 0, // Use device compass heading
           pitch: 60
         }}
-        viewState={{
-          longitude: coords.longitude,
-          latitude: coords.latitude,
-          zoom: 20,
-          bearing: deviceHeading || coords.heading || 0, // Live update bearing with device compass
-          pitch: 60
-        }}
+        // viewState={{
+        //   longitude: coords.longitude,
+        //   latitude: coords.latitude,
+        //   zoom: 20,
+        //   bearing: deviceHeading || coords.heading || 0, // Live update bearing with device compass
+        //   pitch: 60
+        // }}
         controller={true}
         layers={layers}
         style={{ width: '100vw', height: '100vh' }}
@@ -226,6 +247,7 @@ export default function MapComponent({ avatar, myUserId }: { avatar: string, myU
             coords.latitude, coords.longitude,
             user.latitude, user.longitude
           );
+          console.log(`Distance to user ${user.user_id}: ${dist.toFixed(2)}m`);
           return (
             <div key={user.user_id} style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
               <img src={`images/${user.users.avatar}.png`} alt="avatar" style={{ width: 36, height: 36, borderRadius: '50%', border: '2px solid #fff' }} />
@@ -247,13 +269,59 @@ export default function MapComponent({ avatar, myUserId }: { avatar: string, myU
                   onClick={async () => {
                     setCatching(user.user_id);
                     setCatchSuccess(null);
-                    const res = await fetch('/api/catch', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({ initiatorId: myUserId, targetId: user.user_id })
+                    
+                    // Show catch animation
+                    setShowCatchAnimation({
+                      targetUser: {
+                        name: user.users.name || `User ${user.user_id}`,
+                        avatar: `images/${user.users.avatar}.png`
+                      }
                     });
-                    const data = await res.json();
-                    if (data.success) setCatchSuccess(user.users.name || `User ${user.user_id}`);
+                    
+                    try {
+                      // Generate card and log event
+                      const cardRes = await fetch('/api/generate-card', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                          userAId: myUserId, 
+                          userBId: user.user_id,
+                          location: coords ? { lat: coords.latitude, lng: coords.longitude } : null,
+                          preferStatic: false // Force dynamic card generation
+                        })
+                      });
+                      
+                      if (cardRes.ok) {
+                        const cardData = await cardRes.json();
+                        
+                        // Hide animation and show card
+                        setTimeout(() => {
+                          setShowCatchAnimation(null);
+                          setShowCard({
+                            card: cardData.card,
+                            userA: cardData.users.userA,
+                            userB: cardData.users.userB,
+                            eventId: cardData.event.id
+                          });
+                        }, 4000);
+                        
+                        setCatchSuccess(user.users.name || `User ${user.user_id}`);
+                      } else {
+                        // Fallback: just send SMS
+                        setShowCatchAnimation(null);
+                        const res = await fetch('/api/catch', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ initiatorId: myUserId, targetId: user.user_id })
+                        });
+                        const data = await res.json();
+                        if (data.success) setCatchSuccess(user.users.name || `User ${user.user_id}`);
+                      }
+                    } catch (error) {
+                      console.error('Catch failed:', error);
+                      setShowCatchAnimation(null);
+                    }
+                    
                     setCatching(null);
                   }}
                   onMouseEnter={e => {
@@ -273,6 +341,40 @@ export default function MapComponent({ avatar, myUserId }: { avatar: string, myU
         })}
         {catchSuccess && <div style={{ marginTop: 10, color: '#4eec8c' }}>Catch sent to {catchSuccess}!</div>}
       </div>
+
+      {/* Catch Animation */}
+      {showCatchAnimation && (
+        <CatchAnimation
+          targetUser={showCatchAnimation.targetUser}
+          onComplete={() => setShowCatchAnimation(null)}
+        />
+      )}
+
+      {/* Gotcha Card Display */}
+      {showCard && (
+        <GotchaCardDisplay
+          card={showCard.card}
+          userA={showCard.userA}
+          userB={showCard.userB}
+          onComplete={async () => {
+            // Mark the event as completed
+            try {
+              await fetch('/api/complete-event', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                  eventId: showCard.eventId,
+                  notes: 'Completed via map interface'
+                })
+              });
+            } catch (error) {
+              console.error('Failed to complete event:', error);
+            }
+            setShowCard(null);
+          }}
+          onClose={() => setShowCard(null)}
+        />
+      )}
     </div>
   );
 }

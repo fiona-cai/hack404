@@ -21,3 +21,33 @@ export async function GET(request: NextRequest) {
     }
     return NextResponse.json({ user: data || [] }, { status: 200 });
 }
+
+export async function POST(request: NextRequest) {
+    try {
+        const { phoneNumber } = await request.json();
+        
+        if (!phoneNumber) {
+            return NextResponse.json({ error: 'Missing phone number' }, { status: 400 });
+        }
+
+        // Look up user by phone number
+        const { data, error } = await supabase
+            .from('users')
+            .select('*')
+            .eq('phone_number', phoneNumber)
+            .single();
+
+        if (error) {
+            // User not found - return null (not an error)
+            if (error.code === 'PGRST116') {
+                return NextResponse.json(null, { status: 200 });
+            }
+            return NextResponse.json({ error: error.message }, { status: 500 });
+        }
+
+        return NextResponse.json(data, { status: 200 });
+    } catch (error) {
+        console.error('Error getting user by phone:', error);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}

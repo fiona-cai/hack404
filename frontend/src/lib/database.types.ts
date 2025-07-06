@@ -41,6 +41,112 @@ export type Database = {
           },
         ]
       }
+      gotcha_cards: {
+        Row: {
+          id: string
+          title: string
+          description: string
+          type: 'compliment' | 'question' | 'challenge' | 'fun_fact' | 'icebreaker' | 'dare' | 'memory' | 'prediction'
+          rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+          icon_emoji: string
+          background_color: string
+          text_color: string
+          is_dynamic: boolean
+          tags: string[]
+          weight: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          title: string
+          description: string
+          type: 'compliment' | 'question' | 'challenge' | 'fun_fact' | 'icebreaker' | 'dare' | 'memory' | 'prediction'
+          rarity: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+          icon_emoji: string
+          background_color: string
+          text_color: string
+          is_dynamic?: boolean
+          tags?: string[]
+          weight?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          title?: string
+          description?: string
+          type?: 'compliment' | 'question' | 'challenge' | 'fun_fact' | 'icebreaker' | 'dare' | 'memory' | 'prediction'
+          rarity?: 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary'
+          icon_emoji?: string
+          background_color?: string
+          text_color?: string
+          is_dynamic?: boolean
+          tags?: string[]
+          weight?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      gotcha_events: {
+        Row: {
+          id: string
+          user_a_id: number
+          user_b_id: number
+          card_id: string
+          location_lat: number | null
+          location_lng: number | null
+          created_at: string
+          completed_at: string | null
+          completion_notes: string | null
+        }
+        Insert: {
+          id?: string
+          user_a_id: number
+          user_b_id: number
+          card_id: string
+          location_lat?: number | null
+          location_lng?: number | null
+          created_at?: string
+          completed_at?: string | null
+          completion_notes?: string | null
+        }
+        Update: {
+          id?: string
+          user_a_id?: number
+          user_b_id?: number
+          card_id?: string
+          location_lat?: number | null
+          location_lng?: number | null
+          created_at?: string
+          completed_at?: string | null
+          completion_notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gotcha_events_user_a_id_fkey"
+            columns: ["user_a_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gotcha_events_user_b_id_fkey"
+            columns: ["user_b_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gotcha_events_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "gotcha_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       users: {
         Row: {
           avatar: string

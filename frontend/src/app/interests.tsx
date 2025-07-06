@@ -140,6 +140,7 @@ export default function InterestsPage({ user, setUser, setLoggedIn }: { user: Us
                 body: JSON.stringify({ ...user, interests: selected })
               });
               setLoggedIn(true);
+              window.location.reload();
             }}
           >
             Complete

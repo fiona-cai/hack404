@@ -10,6 +10,7 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
   const [phone, setPhone] = useState("");
   const [showBirthday, setShowBirthday] = useState(false);
   const [showName, setShowName] = useState(false);
+  const [isChecking, setIsChecking] = useState(false);
   const [NamePage, setNamePage] = useState<React.ComponentType<{ user: User; setUser: React.Dispatch<React.SetStateAction<User>>; onContinue: () => void }> | null>(null);
   const [AvatarPage, setAvatarPage] = useState<React.ComponentType<{ user: User; setUser: React.Dispatch<React.SetStateAction<User>>, setLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }> | null>(null);
   const [showCatch, setShowCatch] = useState(false);
@@ -22,6 +23,60 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
     if (digits.length <= 3) return digits;
     if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  }
+
+  // Check if user exists and sign them in
+  async function handlePhoneSubmit() {
+    setIsChecking(true);
+    
+    try {
+      // Check if user exists with this phone number
+      const response = await fetch('/api/get-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phoneNumber: phone })
+      });
+
+      if (response.ok) {
+        const existingUser = await response.json();
+        
+        if (existingUser) {
+          // User exists - sign them in directly
+          setUser({
+            name: existingUser.name,
+            avatar: existingUser.avatar,
+            phoneNumber: phone,
+            birthday: existingUser.birthday,
+            interests: existingUser.interests || []
+          });
+
+          // Set authentication cookie via API
+          await fetch('/api/set-auth', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: existingUser.id })
+          });
+
+          setLoggedIn(true);
+          if (typeof window !== "undefined") {
+            window.location.reload();
+          }
+          return;
+        }
+      }
+      
+      // User doesn't exist - proceed with registration
+      setUser({ ...user, phoneNumber: phone });
+      setShowName(true);
+      
+    } catch (error) {
+      console.error('Error checking user:', error);
+      // Fallback to registration flow
+      setUser({ ...user, phoneNumber: phone });
+      setShowName(true);
+    } finally {
+      setIsChecking(false);
+    }
   }
 
   useEffect(() => {
@@ -47,11 +102,6 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
   if (showName && NamePage) {
     return <NamePage user={user} setUser={setUser} onContinue={() => setShowBirthday(true)} />;
   }
-
-  const peopleNearby: { name: string; avatar: string }[] = [
-    { name: "Ash", avatar: "/images/icon.png" },
-    { name: "Misty", avatar: "/images/icon.png" }
-  ];
 
   return (
     <div
@@ -82,7 +132,7 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
         </div>
         <div style={{ marginTop: 150, textAlign: "center" }}>
           <div style={{ color: "#fff", fontSize: 18, marginBottom: 8 }}>
-            Sign up with your phone number
+            {isChecking ? "Checking account..." : "Sign up or sign in with your phone number"}
           </div>
           <div style={{
             display: "flex",
@@ -115,8 +165,7 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
               }}
               onKeyDown={e => {
                 if (phone.length === 10 && (e.key === 'Enter' || e.key === 'ArrowRight')) {
-                  setShowName(true);
-                  setUser({ ...user, phoneNumber: phone });
+                  handlePhoneSubmit();
                 }
               }}
             />
@@ -125,26 +174,38 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
                 aria-label="Continue"
                 onClick={e => {
                   e.preventDefault();
-                  setShowName(true);
-                  setUser({ ...user, phoneNumber: phone });
+                  handlePhoneSubmit();
                 }}
+                disabled={isChecking}
                 type="button"
                 style={{
                   position: "absolute",
                   right: 10,
                   background: "none",
                   border: "none",
-                  cursor: "pointer",
+                  cursor: isChecking ? "not-allowed" : "pointer",
                   display: "flex",
                   alignItems: "center",
-                  height: 32
+                  height: 32,
+                  opacity: isChecking ? 0.6 : 1
                 }}
                 tabIndex={0}
               >
-                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="14" cy="14" r="14" fill="#fff" fillOpacity="0.15"/>
-                  <path d="M11 9l5 5-5 5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
+                {isChecking ? (
+                  <div style={{ 
+                    width: 20, 
+                    height: 20, 
+                    border: "2px solid #fff", 
+                    borderTop: "2px solid transparent", 
+                    borderRadius: "50%", 
+                    animation: "spin 1s linear infinite" 
+                  }} />
+                ) : (
+                  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="14" cy="14" r="14" fill="#fff" fillOpacity="0.15"/>
+                    <path d="M11 9l5 5-5 5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                )}
               </button>
             )}
           </div>
@@ -232,6 +293,11 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
       }
       .animated-bg {
         animation: gradientShift 12s linear infinite;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
       }
     `}</style>
     </div>

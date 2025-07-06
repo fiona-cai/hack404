@@ -5,6 +5,7 @@ export async function GET() {
     const { data, error } = await supabase
       .from('coordinates')
       .select('*');
+    console.log('Fetched coordinates:', data, 'Error:', error);
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
