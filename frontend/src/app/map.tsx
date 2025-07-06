@@ -39,7 +39,7 @@ export default function MapComponent({ avatar, myUserId }: { avatar: string, myU
   // Create the 3D model layer
   const layers = useMemo(() => {
     if (!coords) return [];
-    
+
     // Helper to choose model based on avatar
     const getModelForAvatar = (avatar: string) => {
       console.log('Avatar:', avatar);
@@ -232,7 +232,17 @@ export default function MapComponent({ avatar, myUserId }: { avatar: string, myU
               <span style={{ flex: 1 }}>{user.users.name || `User ${user.user_id}`}</span>
               {dist <= 10 ? (
                 <button
-                  style={{ background: '#4e54c8', color: '#fff', border: 'none', borderRadius: 12, padding: '6px 14px', fontWeight: 600, cursor: 'pointer' }}
+                  style={{
+                    background: '#4e54c8',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 12,
+                    padding: '6px 14px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 0 #373b7c, 0 2px 8px rgba(0,0,0,0.15)',
+                    transition: 'transform 0.1s, box-shadow 0.1s',
+                  }}
                   disabled={catching === user.user_id}
                   onClick={async () => {
                     setCatching(user.user_id);
@@ -245,6 +255,14 @@ export default function MapComponent({ avatar, myUserId }: { avatar: string, myU
                     const data = await res.json();
                     if (data.success) setCatchSuccess(user.users.name || `User ${user.user_id}`);
                     setCatching(null);
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-3px) scale(1.07)';
+                    e.currentTarget.style.boxShadow = '0 8px 0 #373b7c, 0 4px 16px rgba(0,0,0,0.18)';
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'none';
+                    e.currentTarget.style.boxShadow = '0 4px 0 #373b7c, 0 2px 8px rgba(0,0,0,0.15)';
                   }}
                 >{catching === user.user_id ? 'Catching...' : 'Catch'}</button>
               ) : (

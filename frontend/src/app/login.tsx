@@ -149,13 +149,13 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
             )}
           </div>
         </div>
-        <div style={{ marginTop: 40, textAlign: "center" }}>
+        {/* <div style={{ marginTop: 40, textAlign: "center" }}>
           <div style={{ color: "#fff", fontSize: 20, marginBottom: 12 }}>Nearby People</div>
           {peopleNearby.map(person => (
             <div key={person.name} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 10 }}>
               <img src={person.avatar} alt={person.name} style={{ width: 40, height: 40, borderRadius: "50%", border: "2px solid #fff" }} />
               <span style={{ color: "#fff", fontSize: 18 }}>{person.name}</span>
-              <button
+                <button
                 style={{
                   background: "#4e54c8",
                   color: "#fff",
@@ -163,16 +163,32 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
                   borderRadius: 16,
                   padding: "6px 18px",
                   fontWeight: 600,
-                  cursor: "pointer"
+                  cursor: "pointer",
+                  boxShadow: "0 4px 0 #2d357a, 0 2px 8px rgba(0,0,0,0.15)",
+                  transition: "transform 0.1s, box-shadow 0.1s"
                 }}
+                className="catch-3d-btn"
                 onClick={() => {
                   setCatchTarget(person);
                   setShowCatch(true);
                 }}
-              >Catch</button>
+                >
+                Catch
+                </button>
+                <style>{`
+                .catch-3d-btn:hover, .catch-3d-btn:focus {
+                  transform: translateY(-4px) scale(1.04);
+                  box-shadow: 0 8px 0 #2d357a, 0 4px 16px rgba(0,0,0,0.18);
+                  outline: none;
+                }
+                .catch-3d-btn:active {
+                  transform: translateY(2px) scale(0.98);
+                  box-shadow: 0 2px 0 #2d357a, 0 1px 4px rgba(0,0,0,0.12);
+                }
+                `}</style>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
       <style>{`
       :root {
