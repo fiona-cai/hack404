@@ -16,11 +16,27 @@ export default function NamePage({ user, setUser, onContinue }: { user: User; se
   }
 
   return (
-    <div className="animated-bg" style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "flex-start", paddingTop: 40 }}>
+    <div
+      className="animated-bg"
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "flex-start",
+        background:
+          `radial-gradient(circle at 70% 20%, #8e5fa2 0%, #6B4668 40%, transparent 70%),` +
+          `radial-gradient(circle at 30% 80%, #3B6B6B 0%, #2e4a4a 60%, transparent 90%),` +
+          `linear-gradient(120deg, var(--main-gradient-from, #4e54c8) 0%, var(--main-gradient-to, #8f94fb) 100%)`,
+        backgroundBlendMode: "screen, lighten, normal",
+        paddingTop: 40,
+        transition: "background 2s linear"
+      }}
+    >
       <div style={{ width: "100%", maxWidth: 400, margin: "0 auto", maxHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
         <div style={{ marginTop: 100, textAlign: "center" }}>
           <div style={{ color: "#fff", fontSize: 28, fontWeight: 500, marginBottom: 24 }}>
-            What's your name?
+            What&apos;s your name?
           </div>
           <input
             type="text"
