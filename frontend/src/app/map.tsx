@@ -14,6 +14,7 @@ export default function MapComponent() {
   const [nearbyUsers, setNearbyUsers] = useState<any[]>([]);
   const [catching, setCatching] = useState<string | null>(null);
   const [catchSuccess, setCatchSuccess] = useState<string | null>(null);
+  const [deviceHeading, setDeviceHeading] = useState<number>(0);
   const myUserId = 1; // TODO: Replace with real user id from auth
 
   const orientation = useOrientation();
@@ -33,7 +34,7 @@ export default function MapComponent() {
     
     return [
       new ScenegraphLayer<GeolocationCoordinates>({
-        id: 'person-3d-model',
+        id: 'person',
         data: [coords],
         getPosition: (d: GeolocationCoordinates ) => [d.longitude, d.latitude], // Use longitude and latitude for position
         getOrientation: () => [0, 0, 90], // Keep model upright
@@ -48,6 +49,36 @@ export default function MapComponent() {
     ];
   }, [coords, isWalking]);
 
+  // Set up device orientation listener
+  useEffect(() => {
+    const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
+      // Use alpha for compass heading (0-360 degrees)
+      // Alpha represents the rotation around the z-axis (compass heading)
+      if (event.alpha !== null) {
+        setDeviceHeading(event.alpha);
+      }
+    };
+
+    // Request permission for iOS devices
+    const requestPermission = async () => {
+      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
+        const permission = await (DeviceOrientationEvent as any).requestPermission();
+        if (permission === 'granted') {
+          window.addEventListener('deviceorientation', handleDeviceOrientation);
+        }
+      } else {
+        // For non-iOS devices
+        window.addEventListener('deviceorientation', handleDeviceOrientation);
+      }
+    };
+
+    requestPermission();
+
+    return () => {
+      window.removeEventListener('deviceorientation', handleDeviceOrientation);
+    };
+  }, []);
+
   useEffect(() => {
     if (!coords) return;
     // Fetch nearby users (excluding self)
@@ -55,6 +86,11 @@ export default function MapComponent() {
       .then(res => res.ok ? res.json() : [])
       .then(data => setNearbyUsers(data || []));
   }, [coords]);
+
+  useEffect(() => {
+    console.log('Current orientation:', orientation);
+    console.log('Device heading:', deviceHeading);
+  }, [orientation, deviceHeading]);
 
   // Early return after all hooks are called
   if (!coords || !isGeolocationAvailable || !isGeolocationEnabled) {
@@ -92,10 +128,16 @@ export default function MapComponent() {
             longitude: coords.longitude,
             latitude: coords.latitude,
             zoom: 20,
-            bearing: coords.heading || 0, // Use device orientation or GPS heading
+            bearing: deviceHeading || coords.heading || 0, // Use device compass heading
             pitch: 60
         }}
-        
+        viewState={{
+            longitude: coords.longitude,
+            latitude: coords.latitude,
+            zoom: 20,
+            bearing: deviceHeading || coords.heading || 0, // Live update bearing with device compass
+            pitch: 60
+        }}
         controller={true}
         layers={layers}
         style={{width: '100vw', height: '100vh'}}
@@ -108,6 +150,15 @@ export default function MapComponent() {
         />
       </DeckGL>
       
+      {/* Debug Panel */}
+      <div style={{position: 'absolute', bottom: 20, left: 20, zIndex: 1000, background: 'rgba(0,0,0,0.8)', borderRadius: 12, padding: 16, color: '#fff', fontFamily: 'monospace', fontSize: 12}}>
+        <div style={{fontWeight: 600, marginBottom: 8}}>Debug Info</div>
+        <div>Device Heading: {deviceHeading?.toFixed(1)}°</div>
+        <div>GPS Heading: {coords.heading?.toFixed(1) || 'N/A'}°</div>
+        <div>Current Bearing: {(deviceHeading || coords.heading || 0).toFixed(1)}°</div>
+        <div>Orientation Alpha: {orientation?.angle?.toFixed(1) || 'N/A'}°</div>
+      </div>
+
       {/* Animation Toggle Button */}
       <button
         onClick={() => setIsWalking(!isWalking)}
