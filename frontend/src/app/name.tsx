@@ -20,7 +20,7 @@ export default function NamePage({ user, setUser, onContinue }: { user: User; se
       <div style={{ width: "100%", maxWidth: 400, margin: "0 auto", maxHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
         <div style={{ marginTop: 100, textAlign: "center" }}>
           <div style={{ color: "#fff", fontSize: 28, fontWeight: 500, marginBottom: 24 }}>
-            What's your name?
+            What&apos;s your name?
           </div>
           <input
             type="text"

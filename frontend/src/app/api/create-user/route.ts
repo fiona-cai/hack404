@@ -5,16 +5,15 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { name, phoneNumber, birthday, interests, avatar } = body;
+        const { name, phoneNumber, interests, avatar } = body;
 
-        if (!name || !phoneNumber  || interests === null || interests === undefined || !avatar) {
+        if (!name || !phoneNumber || interests === null || interests === undefined || !avatar) {
             return NextResponse.json({ error: 'Missing fields' }, { status: 400 });
         }
 
         const { data, error } = await supabase.from('users').insert({ 
             name, 
             phone_number: phoneNumber, 
-            birthday, 
             interests, 
             avatar 
         }).select().single();
