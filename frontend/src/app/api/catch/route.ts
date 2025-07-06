@@ -4,6 +4,8 @@ import { sendSMS } from "@/lib/sms";
 
 const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
 
+// TODO: STORE CATCHES AND LIST THEM OUT
+
 export async function POST(req: NextRequest) {
   const { initiatorId, targetId } = await req.json();
   if (!initiatorId || !targetId) {

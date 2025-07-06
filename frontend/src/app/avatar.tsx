@@ -5,8 +5,8 @@ import { User } from "./page";
 const avatars = [
   "Timmy",
   "Amy",
-  "TBD",
-  "TBD"
+  "TBD1",
+  "TBD2"
 ];
 
 
