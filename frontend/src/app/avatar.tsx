@@ -127,7 +127,7 @@ export default function AvatarPage({ user, setUser, setLoggedIn }: { user: User;
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28, justifyContent: "center", margin: "0 auto 40px auto", width: 220 }}>
               {avatars.map((src, i) => (
                 <button
-                  key={`images/${src}.png`}
+                  key={src}
                   onClick={() => setSelectedAvatar(i)}
                   style={{
                     border: selectedAvatar === i ? "3px solid #fff" : "2px solid #888",
@@ -144,7 +144,7 @@ export default function AvatarPage({ user, setUser, setLoggedIn }: { user: User;
                     transition: "box-shadow 0.2s, border 0.2s"
                   }}
                 >
-                  <img src={src} alt={`Avatar ${i+1}`} style={{ width: 80, height: 80, borderRadius: "50%" }} />
+                  <img src={`images/${src}.png`} alt={`Avatar ${i+1}`} style={{ width: 80, height: 80, borderRadius: "50%" }} />
                 </button>
               ))}
             </div>
