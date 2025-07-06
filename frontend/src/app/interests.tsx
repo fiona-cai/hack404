@@ -130,6 +130,7 @@ export default function InterestsPage({ user, setUser, setLoggedIn }: { user: Us
             }}
             disabled={selected.length === 0}
             onClick={() => {
+              console.log("Selected interests:", selected);
               setUser({ ...user, interests: selected });
               fetch("/api/create-user", {
                 method: "POST",
