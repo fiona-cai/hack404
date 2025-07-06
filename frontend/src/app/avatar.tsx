@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { ComponentType, useEffect, useState } from "react";
 
 const avatars = [
   "/images/avatar1.png",
@@ -12,8 +12,15 @@ export default function AvatarPage({ onComplete }: { onComplete?: () => void } =
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
   const [showInterests, setShowInterests] = useState(false);
 
-  if (showInterests) {
-    const InterestsPage = require("./interests").default;
+  const [InterestsPage, setInterestsPage] = useState<ComponentType<{ onComplete?: () => void }> | null>(null);
+
+  useEffect(() => {
+    if (showInterests && !InterestsPage) {
+      import("./interests").then((mod) => setInterestsPage(() => mod.default));
+    }
+  }, [showInterests, InterestsPage]);
+
+  if (showInterests && InterestsPage) {
     return <InterestsPage onComplete={onComplete} />;
   }
 
