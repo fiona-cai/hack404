@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { User } from "./page";
 
-export default function LoginPage({  }: { onComplete?: () => void } = {}) {
+export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; setUser: React.Dispatch<React.SetStateAction<User>>; setLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [phone, setPhone] = useState("");
   const [showBirthday, setShowBirthday] = useState(false);
 
@@ -15,7 +16,7 @@ export default function LoginPage({  }: { onComplete?: () => void } = {}) {
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
   }
 
-  const [AvatarPage, setAvatarPage] = useState<React.ComponentType | null>(null);
+  const [AvatarPage, setAvatarPage] = useState<React.ComponentType<{ user: User; setUser: React.Dispatch<React.SetStateAction<User>>, setLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }> | null>(null);
 
   useEffect(() => {
     if (showBirthday && !AvatarPage) {
@@ -24,7 +25,7 @@ export default function LoginPage({  }: { onComplete?: () => void } = {}) {
   }, [showBirthday, AvatarPage]);
 
   if (showBirthday && AvatarPage) {
-    return <AvatarPage />;
+    return <AvatarPage user={user} setUser={setUser} setLoggedIn={setLoggedIn} />;
   }
 
   return (
@@ -99,6 +100,7 @@ export default function LoginPage({  }: { onComplete?: () => void } = {}) {
                 onClick={e => {
                   e.preventDefault();
                   setShowBirthday(true);
+                  setUser({ ...user, phoneNumber: phone });
                 }}
                 type="button"
                 style={{
