@@ -1,7 +1,7 @@
 import supabase from '@/lib/database';
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
     const { data, error } = await supabase
       .from('coordinates')
       .select('*');

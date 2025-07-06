@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import { User } from "./page";
 
 const INTERESTS = [
   { label: "Tech", icon: "💻" },
@@ -14,7 +15,7 @@ const INTERESTS = [
   { label: "Active", icon: "🏃‍♂️" },
 ];
 
-export default function InterestsPage({ onComplete }: { onComplete?: () => void } = {}) {
+export default function InterestsPage({ user, setUser, setLoggedIn }: { user: User; setUser: React.Dispatch<React.SetStateAction<User>>; setLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [selected, setSelected] = useState<string[]>([]);
 
   function toggleInterest(label: string) {
@@ -128,7 +129,17 @@ export default function InterestsPage({ onComplete }: { onComplete?: () => void 
               cursor: selected.length > 0 ? "pointer" : "not-allowed"
             }}
             disabled={selected.length === 0}
-            onClick={onComplete}
+            onClick={() => {
+              setUser({ ...user, interests: selected });
+              fetch("/api/create-user", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ ...user, interests: selected })
+              });
+              setLoggedIn(true);
+            }}
           >
             Complete
           </button>

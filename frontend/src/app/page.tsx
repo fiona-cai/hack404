@@ -5,11 +5,27 @@ import CoordinatesComponent from './components/CoordinatesComponent';
 import LoginPage from './login';
 import MapComponent from './map';
 
+export type User = {
+  avatar: string;
+  birthday: string;
+  interests: string[];
+  name: string;
+  phoneNumber: string;
+};
+
 export default function ClientHome() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true); // replace with real auth logic
+  // const isLoggedIn = true; // replace with real auth logic
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState<User>({
+    avatar: '',
+    birthday: '',
+    interests: [] as string[],
+    name: '',
+    phoneNumber: '',
+  });
 
   if (!isLoggedIn) {
-    return <LoginPage onComplete={() => setIsLoggedIn(true)} />; // TODO: revert to false before pushing
+    return <LoginPage user={user} setUser={setUser} setLoggedIn={setIsLoggedIn} />;
   }
 
   return (
