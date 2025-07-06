@@ -676,7 +676,7 @@ export default function MapComponent({ avatar, myUserId }: { avatar: string, myU
         <div>Orientation Alpha: {orientation?.angle?.toFixed(1) || 'N/A'}°</div>
       </div>
 
-      {/* Animation Toggle Button */}
+      {/* Animation Toggle Button
       <button
         onClick={() => setIsWalking(!isWalking)}
         style={{
@@ -695,7 +695,7 @@ export default function MapComponent({ avatar, myUserId }: { avatar: string, myU
         }}
       >
         {isWalking ? '🚶 Walking' : '🧘 Idle'}
-      </button>
+      </button> */}
 
       {/* Overlay: Show nearby users and Catch button if within 10m */}
       <div style={{ position: 'absolute', top: 20, left: 20, zIndex: 1000, background: 'rgba(0,0,0,0.7)', borderRadius: 16, padding: 16, color: '#fff', minWidth: 220 }}>
