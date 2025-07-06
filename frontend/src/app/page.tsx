@@ -30,13 +30,19 @@ export default function ClientHome() {
       try {
         const response = await fetch('/api/check-auth');
         const authData = await response.json();
+        // console.log('Auth response:', authData);
         
         setIsLoggedIn(authData.isLoggedIn);
         setCurrentUserId(authData.userId);
-        
-        console.log('Auth check:', authData);
-        console.log('User is logged in:', authData.isLoggedIn);
-        console.log('Current user ID:', authData.userId);
+
+        const dbresponse = await fetch(`/api/get-user?userId=${authData.userId}`);
+        const userData = await dbresponse.json();
+        // console.log('User data:', userData);
+        setUser(userData.user[0]);
+
+        // console.log('Auth check:', authData);
+        // console.log('User is logged in:', authData.isLoggedIn);
+        // console.log('Current user ID:', authData.userId);
       } catch (error) {
         console.error('Failed to check auth:', error);
         setIsLoggedIn(false);
@@ -106,13 +112,14 @@ export default function ClientHome() {
 
       <CoordinatesComponent
         render={({ coordinates, isConnected, getUserCount }) => {
-          console.log('Coordinates:', coordinates);
-          console.log('Is connected:', isConnected);
-          console.log('User count:', getUserCount());
+          // console.log('Coordinates:', coordinates);
+          // console.log('Is connected:', isConnected);
+          // console.log('User count:', getUserCount());
           return null; // Just for logging, actual rendering below
         }}
       />
-      <MapComponent avatar={user.avatar} />
+      {/* <p>{currentUserId} {user.avatar}</p> */}
+      {currentUserId && user.avatar ? <MapComponent avatar={user.avatar} myUserId={currentUserId} /> : <p>Loading...</p>}
     </>
   );
 }
