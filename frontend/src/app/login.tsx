@@ -6,6 +6,9 @@ import { User } from "./page";
 export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; setUser: React.Dispatch<React.SetStateAction<User>>; setLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [phone, setPhone] = useState("");
   const [showBirthday, setShowBirthday] = useState(false);
+  const [showName, setShowName] = useState(false);
+  const [NamePage, setNamePage] = useState<React.ComponentType<{ user: User; setUser: React.Dispatch<React.SetStateAction<User>>; onContinue: () => void }> | null>(null);
+  const [AvatarPage, setAvatarPage] = useState<React.ComponentType<{ user: User; setUser: React.Dispatch<React.SetStateAction<User>>, setLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }> | null>(null);
 
   // Format phone number as (XXX) XXX-XXXX
   function formatPhone(input: string) {
@@ -16,13 +19,47 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
   }
 
-  const [AvatarPage, setAvatarPage] = useState<React.ComponentType<{ user: User; setUser: React.Dispatch<React.SetStateAction<User>>, setLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }> | null>(null);
+  useEffect(() => {
+    if (showName && !NamePage) {
+      import("./name").then(module => setNamePage(() => module.default));
+    }
+  }, [showName, NamePage]);
 
   useEffect(() => {
     if (showBirthday && !AvatarPage) {
       import("./avatar").then(module => setAvatarPage(() => module.default));
     }
   }, [showBirthday, AvatarPage]);
+
+  if (showName && NamePage) {
+    return (
+      <div className="animated-bg"
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "flex-start",
+          background:
+            `radial-gradient(circle at 70% 20%, #8e5fa2 0%, #6B4668 40%, transparent 70%),` +
+            `radial-gradient(circle at 30% 80%, #3B6B6B 0%, #2e4a4a 60%, transparent 90%),` +
+            `linear-gradient(120deg, var(--main-gradient-from, #6B4668) 0%, var(--main-gradient-to, #3B6B6B) 100%)`,
+          backgroundBlendMode: "screen, lighten, normal",
+          paddingTop: 40,
+          transition: "background 2s linear"
+        }}
+      >
+        <div style={{ width: "100%", maxWidth: 400, margin: "0 auto", maxHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
+          <div style={{ marginTop: 100, textAlign: "center" }}>
+            <div style={{ color: "#fff", fontSize: 28, fontWeight: 500, marginBottom: 24 }}>
+              What's your name?
+            </div>
+            <NamePage user={user} setUser={setUser} onContinue={() => setShowBirthday(true)} />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (showBirthday && AvatarPage) {
     return <AvatarPage user={user} setUser={setUser} setLoggedIn={setLoggedIn} />;
@@ -40,7 +77,7 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
         background:
           `radial-gradient(circle at 70% 20%, #8e5fa2 0%, #6B4668 40%, transparent 70%),` +
           `radial-gradient(circle at 30% 80%, #3B6B6B 0%, #2e4a4a 60%, transparent 90%),` +
-          `linear-gradient(120deg, var(--main-gradient-from, #6B4668) 0%, var(--main-gradient-to, #3B6B6B) 100%)`,
+          `linear-gradient(120deg, var(--main-gradient-from, #4e54c8) 0%, var(--main-gradient-to, #8f94fb) 100%)`,
         backgroundBlendMode: "screen, lighten, normal",
         paddingTop: 40,
         transition: "background 2s linear"
@@ -90,7 +127,8 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
               }}
               onKeyDown={e => {
                 if (phone.length === 10 && (e.key === 'Enter' || e.key === 'ArrowRight')) {
-                  setShowBirthday(true);
+                  setShowName(true);
+                  setUser({ ...user, phoneNumber: phone });
                 }
               }}
             />
@@ -99,7 +137,7 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
                 aria-label="Continue"
                 onClick={e => {
                   e.preventDefault();
-                  setShowBirthday(true);
+                  setShowName(true);
                   setUser({ ...user, phoneNumber: phone });
                 }}
                 type="button"
