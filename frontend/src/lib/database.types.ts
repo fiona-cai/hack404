@@ -43,28 +43,31 @@ export type Database = {
       }
       users: {
         Row: {
+          avatar: string
           birthday: string | null
           created_at: string
           id: number
           interests: string[]
+          name: string
           phone_number: string | null
-          profile_picture_url: string | null
         }
         Insert: {
+          avatar: string
           birthday?: string | null
           created_at?: string
           id?: number
           interests?: string[]
+          name?: string
           phone_number?: string | null
-          profile_picture_url?: string | null
         }
         Update: {
+          avatar?: string
           birthday?: string | null
           created_at?: string
           id?: number
           interests?: string[]
+          name?: string
           phone_number?: string | null
-          profile_picture_url?: string | null
         }
         Relationships: []
       }
