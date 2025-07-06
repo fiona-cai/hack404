@@ -136,15 +136,15 @@ export default function AvatarPage({ user, setUser, setLoggedIn }: { user: User;
                     background: "none",
                     cursor: "pointer",
                     outline: selectedAvatar === i ? "2px solid #4e54c8" : "none",
-                    width: 100,
-                    height: 100,
+                    width: 150,
+                    height: 150,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     transition: "box-shadow 0.2s, border 0.2s"
                   }}
                 >
-                  <img src={`images/${src}.png`} alt={`Avatar ${i+1}`} style={{ width: 80, height: 80, borderRadius: "50%" }} />
+                  <img src={`images/${src}.png`} alt={`Avatar ${i+1}`} style={{ width: 120, height: 120, borderRadius: "50%" }} />
                 </button>
               ))}
             </div>

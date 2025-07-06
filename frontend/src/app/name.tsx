@@ -34,7 +34,7 @@ export default function NamePage({ user, setUser, onContinue }: { user: User; se
       }}
     >
       <div style={{ width: "100%", maxWidth: 400, margin: "0 auto", maxHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
-        <div style={{ marginTop: 100, textAlign: "center" }}>
+        <div style={{ marginTop: 250, textAlign: "center" }}>
           <div style={{ color: "#fff", fontSize: 28, fontWeight: 500, marginBottom: 24 }}>
             What&apos;s your name?
           </div>
@@ -52,7 +52,8 @@ export default function NamePage({ user, setUser, onContinue }: { user: User; se
               borderRadius: 20,
               padding: "12px 20px",
               width: "100%",
-              marginBottom: 16
+              marginBottom: 32,
+              textAlign: "center" // Center align text as user types
             }}
             onKeyDown={e => {
               if (e.key === 'Enter') handleContinue();
@@ -63,14 +64,14 @@ export default function NamePage({ user, setUser, onContinue }: { user: User; se
           <button
             onClick={handleContinue}
             style={{
-              background: name.trim() ? "#4e54c8" : "#444",
+              background: name.trim() ? "#0000" : "#444",
               color: "#fff",
               border: "none",
               borderRadius: 20,
               padding: "14px 0",
               fontSize: 18,
               fontWeight: 500,
-              width: "100%",
+              width: "50%",
               cursor: name.trim() ? "pointer" : "not-allowed"
             }}
             disabled={!name.trim()}
