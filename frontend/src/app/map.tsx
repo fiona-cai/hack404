@@ -79,43 +79,23 @@ export default function MapComponent({ avatar }: { avatar: string }) {
     return [userLayer, ...nearbyLayers];
   }, [coords, isWalking, nearbyUsers, avatar]);
 
-  // Set up device orientation listener
-  useEffect(() => {
-    const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
-      // Use alpha for compass heading (0-360 degrees)
-      // Alpha represents the rotation around the z-axis (compass heading)
-      if (event.alpha !== null) {
-        setDeviceHeading(event.alpha);
-      }
-    };
-
-    // Request permission for iOS devices
-    const requestPermission = async () => {
-      if (typeof (DeviceOrientationEvent as any).requestPermission === 'function') {
-        const permission = await (DeviceOrientationEvent as any).requestPermission();
-        if (permission === 'granted') {
-          window.addEventListener('deviceorientation', handleDeviceOrientation);
-        }
-      } else {
-        // For non-iOS devices
-        window.addEventListener('deviceorientation', handleDeviceOrientation);
-      }
-    };
-
-    requestPermission();
-
-    return () => {
-      window.removeEventListener('deviceorientation', handleDeviceOrientation);
-    };
-  }, []);
-
   useEffect(() => {
     if (!coords) return;
     // Fetch nearby users (excluding self)
+    fetch(`/api/set-coordinates`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            userId: myUserId,
+            latitude: coords.latitude,
+            longitude: coords.longitude
+        })
+    })
+
     fetch(`/api/get-nearby?userId=${myUserId}`)
       .then(res => res.ok ? res.json() : [])
       .then(data => setNearbyUsers(data || []));
-  }, [coords]);
+    }, [coords]);
 
   useEffect(() => {
     console.log('Current orientation:', orientation);
