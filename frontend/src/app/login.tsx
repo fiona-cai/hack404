@@ -117,7 +117,7 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
           `radial-gradient(circle at 30% 80%, #3B6B6B 0%, #2e4a4a 60%, transparent 90%),` +
           `linear-gradient(120deg, var(--main-gradient-from, #4e54c8) 0%, var(--main-gradient-to, #8f94fb) 100%)`,
         backgroundBlendMode: "screen, lighten, normal",
-        paddingTop: 40,
+        paddingTop: 20,
         transition: "background 2s linear"
       }}
     >
@@ -130,7 +130,7 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
             Catch Conversations.<br />Make Real Connections.
           </div>
         </div>
-        <div style={{ marginTop: 150, textAlign: "center" }}>
+        <div style={{ marginTop: 75, textAlign: "center" }}>
           <div style={{ color: "#fff", fontSize: 18, marginBottom: 8 }}>
             {isChecking ? "Checking account..." : "Sign up or sign in with your phone number"}
           </div>
