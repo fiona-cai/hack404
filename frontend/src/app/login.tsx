@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export default function LoginPage() {
+export default function LoginPage({ onComplete }: { onComplete?: () => void } = {}) {
   const [phone, setPhone] = useState("");
   const [showBirthday, setShowBirthday] = useState(false);
 
@@ -29,6 +29,7 @@ export default function LoginPage() {
 
   return (
     <div
+      className="animated-bg"
       style={{
         minHeight: "100vh",
         display: "flex",
@@ -45,16 +46,16 @@ export default function LoginPage() {
       }}
     >
       <div style={{ width: "100%", maxWidth: 400, margin: "0 auto", maxHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
-        <div style={{ marginTop: 32, textAlign: "center" }}>
-          <img src="/images/icon.png" alt="gotcha logo" style={{ width: 200, height: "auto", margin: "0 auto" }} />
+        <div style={{ marginTop: 60, textAlign: "center" }}>
+          <img src="/images/icon.png" alt="gotcha logo" style={{ width: 360, height: "auto", margin: "0 auto" }} />
         </div>
-        <div style={{ marginTop: 32, textAlign: "center" }}>
-          <div style={{ color: "#fff", fontSize: 18, fontWeight: 400, lineHeight: 1.3 }}>
+        <div style={{ marginTop: 12, textAlign: "center" }}>
+          <div style={{ color: "#fff", fontSize: 24, fontWeight: 400, lineHeight: 1.3 }}>
             Catch Conversations.<br />Make Real Connections.
           </div>
         </div>
-        <div style={{ marginTop: 120, textAlign: "center" }}>
-          <div style={{ color: "#fff", fontSize: 14, marginBottom: 8 }}>
+        <div style={{ marginTop: 150, textAlign: "center" }}>
+          <div style={{ color: "#fff", fontSize: 18, marginBottom: 8 }}>
             Sign up with your phone number
           </div>
           <div style={{
@@ -82,7 +83,7 @@ export default function LoginPage() {
                 border: "none",
                 outline: "none",
                 color: "#fff",
-                fontSize: 20,
+                fontSize: 24,
                 width: "100%",
                 letterSpacing: 2
               }}
@@ -119,15 +120,6 @@ export default function LoginPage() {
               </button>
             )}
           </div>
-        </div>
-        <div style={{ flex: 1 }} />
-        <div style={{ position: "absolute", left: 0, bottom: 0, width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "16px 24px", color: "#fff", opacity: 0.5 }}>
-          <span>9:41</span>
-          <span style={{ display: "flex", gap: 8 }}>
-            <svg width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="8" width="2" height="4" rx="1" fill="#fff"/><rect x="6" y="6" width="2" height="8" rx="1" fill="#fff"/><rect x="10" y="4" width="2" height="12" rx="1" fill="#fff"/><rect x="14" y="2" width="2" height="16" rx="1" fill="#fff"/></svg>
-            <svg width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="10" cy="10" r="8" stroke="#fff" strokeWidth="2"/><circle cx="10" cy="10" r="4" fill="#fff"/></svg>
-            <svg width="24" height="24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="18" width="20" height="2" rx="1" fill="#fff"/></svg>
-          </span>
         </div>
       </div>
       <style>{`
@@ -167,7 +159,10 @@ export default function LoginPage() {
           --main-gradient-to: #8f94fb;
         }
       }
-      div[style*='min-height: 100vh'] {
+      body, #__next, #root {
+        height: 100%;
+      }
+      .animated-bg {
         animation: gradientShift 12s linear infinite;
       }
     `}</style>

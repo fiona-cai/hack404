@@ -19,6 +19,7 @@ export default function MapComponent() {
   });
   const [loading, setLoading] = useState(true);
   const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
+  const [isWalking, setIsWalking] = useState(false);
 
   // Create the 3D model layer
   const layers = useMemo(() => {
@@ -30,16 +31,16 @@ export default function MapComponent() {
         data: [userLocation],
         getPosition: (d: Coordinates) => d,
         getOrientation: () => [0, 180, 90], // Keep model upright
-        scenegraph: 'https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/BoxAnimated/glTF-Binary/BoxAnimated.glb',
-        sizeScale: 3, // Smaller scale for map overlay
+        scenegraph: '/models/timmy.glb',
+        sizeScale: 0.05, // Smaller scale for map overlay
         _animations: {
-          '*': {speed: 1}
+          [isWalking ? 'Walking' : 'BreathingIdle']: {speed: 1}
         },
         _lighting: 'pbr',
         pickable: false,
       })
     ];
-  }, [userLocation]);
+  }, [userLocation, isWalking]);
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -84,18 +85,49 @@ export default function MapComponent() {
   }
 
   return (
-    <DeckGL
-      initialViewState={viewState}
-      controller={true}
-      layers={layers}
-      style={{width: '100vw', height: '100vh'}}
-      getTooltip={({object}: PickingInfo<Coordinates>) => 
-        object ? {text: "Your location - 3D model marker"} : null
-      }
-    >
-      <Map
-        mapStyle={`https://api.maptiler.com/maps/0197dc5c-bcb0-7836-a7d1-dff45b08d6a1/style.json?key=${process.env.NEXT_PUBLIC_MAPLIBRE_KEY}`}
-      />
-    </DeckGL>
+    <div style={{position: 'relative', width: '100vw', height: '100vh'}}>
+      <DeckGL
+        initialViewState={viewState}
+        controller={true}
+        layers={layers}
+        style={{width: '100vw', height: '100vh'}}
+        getTooltip={({object}: PickingInfo<Coordinates>) => 
+          object ? {text: "Your location - 3D model marker"} : null
+        }
+      >
+        <Map
+          mapStyle={`https://api.maptiler.com/maps/0197dc5c-bcb0-7836-a7d1-dff45b08d6a1/style.json?key=${process.env.NEXT_PUBLIC_MAPLIBRE_KEY}`}
+        />
+      </DeckGL>
+      
+      {/* Animation Toggle Button */}
+      <button
+        onClick={() => setIsWalking(!isWalking)}
+        style={{
+          position: 'absolute',
+          top: '20px',
+          right: '20px',
+          padding: '12px 24px',
+          backgroundColor: isWalking ? '#4CAF50' : '#2196F3',
+          color: 'white',
+          border: 'none',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          boxShadow: '0 4px 8px rgba(0,0,0,0.2)',
+          zIndex: 1000,
+          transition: 'all 0.3s ease'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.transform = 'scale(1.05)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.transform = 'scale(1)';
+        }}
+      >
+        {isWalking ? '🚶 Walking' : '🧘 Idle'}
+      </button>
+    </div>
   );
 }

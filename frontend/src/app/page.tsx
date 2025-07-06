@@ -8,7 +8,7 @@ export default function ClientHome() {
   const isLoggedIn = true; // replace with real auth logic
 
   if (!isLoggedIn) {
-    return <LoginPage />;
+    return <LoginPage onComplete={() => setIsLoggedIn(true)} />;
   }
 
   return (
