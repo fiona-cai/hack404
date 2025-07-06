@@ -98,27 +98,49 @@ export default function ClientHome() {
   return (
     <>
       {/* Display current user info */}
-      <div style={{ padding: '10px', backgroundColor: '#e8f5e8', marginBottom: '10px' }}>
-        <h3>Welcome! You are logged in</h3>
-        <p>Your User ID: {currentUserId}</p>
-        <button 
+      <div style={{
+        padding: '16px',
+        background: 'linear-gradient(90deg, #f0f4ff 0%, #e3ffe8 100%)',
+        borderRadius: '10px',
+        marginBottom: '18px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: '16px'
+      }}>
+        <div>
+          <h3 style={{ margin: 0, fontWeight: 600, color: '#2d3a4a' }}>Welcome! You are logged in</h3>
+          <p style={{ margin: '4px 0 0 0', color: '#4a5a6a', fontSize: '15px' }}>
+        {/* Your User ID: <span style={{ fontWeight: 500 }}>{currentUserId}</span> */}
+          </p>
+        </div>
+        <button
           onClick={async () => {
-            try {
-              // Call logout API to clear server-side cookie
-              await fetch('/api/logout', { method: 'POST' });
-              // Clear client-side state
-              setIsLoggedIn(false);
-              setCurrentUserId(null);
-              console.log('Logged out successfully');
-            } catch (error) {
-              console.error('Logout failed:', error);
-              // Fallback: clear client-side cookie manually
-              document.cookie = 'userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-              setIsLoggedIn(false);
-              setCurrentUserId(null);
-            }
+        try {
+          await fetch('/api/logout', { method: 'POST' });
+          setIsLoggedIn(false);
+          setCurrentUserId(null);
+          console.log('Logged out successfully');
+        } catch (error) {
+          console.error('Logout failed:', error);
+          document.cookie = 'userId=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+          setIsLoggedIn(false);
+          setCurrentUserId(null);
+        }
           }}
-          style={{ padding: '5px 10px', backgroundColor: '#ff6b6b', color: 'white', border: 'none', borderRadius: '4px' }}
+          style={{
+        padding: '8px 20px',
+        background: 'linear-gradient(90deg, #ff6b6b 0%, #ffb36b 100%)',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '6px',
+        fontWeight: 500,
+        fontSize: '15px',
+        cursor: 'pointer',
+        boxShadow: '0 1px 4px rgba(255,107,107,0.10)',
+        transition: 'background 0.2s'
+          }}
         >
           Logout
         </button>

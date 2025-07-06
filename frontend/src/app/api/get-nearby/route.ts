@@ -21,6 +21,8 @@ export async function GET(request: NextRequest) {
         return new Response("No coordinates found", { status: 404 });
     }
 
+    // console.log("Fetched coordinates:", coordinates);
+
     // Filter coordinates based on userId
     const nearbyCoordinates = coordinates.filter(coord => coord.user_id.toString() !== userId.toString());
     if (nearbyCoordinates.length === 0) {
@@ -33,18 +35,37 @@ export async function GET(request: NextRequest) {
         return new Response("User coordinate not found", { status: 404 });
     }
 
+    // Helper function for accurate distance calculation using Haversine formula
+    function getDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
+        const R = 6371000; // Earth's radius in meters
+        const toRad = (deg: number) => deg * Math.PI / 180;
+        const dLat = toRad(lat2 - lat1);
+        const dLon = toRad(lon2 - lon1);
+        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    }
+
     const nearby = nearbyCoordinates.filter(coord => {
-        const distance = Math.sqrt(Math.pow(coord.latitude! - userCoordinate.latitude!, 2) + Math.pow(coord.longitude!- userCoordinate.longitude!, 2));
+        const distance = getDistanceMeters(
+            userCoordinate.latitude!,
+            userCoordinate.longitude!,
+            coord.latitude!,
+            coord.longitude!
+        );
 
-        // Print distance in meters
-        console.log("Distance in metres:", distance * 111139); // Approx. conversion from degrees to metres
+        console.log(`Distance from user ${userCoordinate.user_id} to user ${coord.user_id}: ${distance.toFixed(2)}m`);
 
-        return distance <= 0.002; // Approx. 200 metres
+        return distance <= 200; // 200 meters radius
     });
 
     if (nearby.length === 0) {
         return new Response("No nearby coordinates found within 200 metres", { status: 404 });
     }
+
+    // console.log("Nearby coordinates for user ID", userId, ":", nearby);
 
     return new Response(JSON.stringify(nearby), {
         status: 200,

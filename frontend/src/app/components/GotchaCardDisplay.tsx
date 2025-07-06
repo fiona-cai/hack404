@@ -95,8 +95,8 @@ export default function GotchaCardDisplay({
             onClick={onClose}
             style={{
               position: 'absolute',
-              top: '12px',
-              right: '12px',
+              top: '30px',
+              right: '32px',
               background: 'rgba(0, 0, 0, 0.3)',
               border: 'none',
               borderRadius: '50%',
@@ -117,8 +117,8 @@ export default function GotchaCardDisplay({
         {/* Rarity indicator */}
         <div style={{
           position: 'absolute',
-          top: '12px',
-          left: '12px',
+          top: '32px',
+          left: '32px',
           background: 'rgba(0, 0, 0, 0.3)',
           padding: '4px 8px',
           borderRadius: '12px',
