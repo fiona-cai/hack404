@@ -1,20 +1,29 @@
 "use client";
-import React, { useState } from "react";
+import React, { ComponentType, useEffect, useState } from "react";
+import { User } from "./page";
 
 const avatars = [
-  "/images/avatar1.png",
-  "/images/avatar2.png",
-  "/images/avatar3.png",
-  "/images/avatar4.png"
+  "Timmy",
+  "Amy",
+  "TBD1",
+  "TBD2"
 ];
 
-export default function AvatarPage({ onComplete }: { onComplete?: () => void } = {}) {
+
+export default function AvatarPage({ user, setUser, setLoggedIn }: { user: User; setUser: React.Dispatch<React.SetStateAction<User>>; setLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
   const [showInterests, setShowInterests] = useState(false);
 
-  if (showInterests) {
-    const InterestsPage = require("./interests").default;
-    return <InterestsPage onComplete={onComplete} />;
+  const [InterestsPage, setInterestsPage] = useState<ComponentType<{ user: User; setUser: React.Dispatch<React.SetStateAction<User>>, setLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }> | null>(null);
+
+  useEffect(() => {
+    if (showInterests && !InterestsPage) {
+      import("./interests").then((mod) => setInterestsPage(() => mod.default));
+    }
+  }, [showInterests, InterestsPage]);
+
+  if (showInterests && InterestsPage) {
+    return <InterestsPage user={user} setUser={setUser} setLoggedIn={setLoggedIn} />;
   }
 
   return (
@@ -156,7 +165,10 @@ export default function AvatarPage({ onComplete }: { onComplete?: () => void } =
                 cursor: selectedAvatar !== null ? "pointer" : "not-allowed"
               }}
               disabled={selectedAvatar === null}
-              onClick={() => selectedAvatar !== null && setShowInterests(true)}
+              onClick={() => {
+                setUser({ ...user, avatar: avatars[selectedAvatar || 0] }); // Update user state with selected avatar
+                return selectedAvatar !== null && setShowInterests(true);
+              }}
             >
               Continue to Interests
             </button>
