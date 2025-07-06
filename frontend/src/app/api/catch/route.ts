@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import { sendSMS } from '../../../lib/sms';
+import { sendSMS } from "@/lib/sms";
 
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
+const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!);
 
 export async function POST(req: NextRequest) {
   const { initiatorId, targetId } = await req.json();
@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
   // Fetch target user phone number and initiator profile
   const { data: targetUser, error: targetError } = await supabase
     .from('users')
-    .select('phone')
+    .select('phone_number')
     .eq('id', targetId)
     .single();
   if (targetError || !targetUser) {
@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   const link = `${process.env.NEXT_PUBLIC_BASE_URL}/profile/${initiatorId}?token=${token}`;
 
   // Send SMS (real implementation)
-  await sendSMS(targetUser.phone, `👋 Someone nearby wants to connect with you! Tap here to view their profile: ${link}`);
+  await sendSMS(targetUser.phone_number, `👋 Someone nearby wants to connect with you! Tap here to view their profile: ${link}`);
 
   return NextResponse.json({ success: true, link });
 }
