@@ -29,6 +29,8 @@ export default function MapComponent() {
   const layers = useMemo(() => {
     if (!coords) return [];
     
+    console.log('Creating ScenegraphLayer with GLB:', '/models/timmy.glb');
+    
     return [
       new ScenegraphLayer<GeolocationCoordinates>({
         id: 'person-3d-model',
@@ -38,10 +40,10 @@ export default function MapComponent() {
         scenegraph: '/models/timmy.glb',
         sizeScale: 0.05, // Smaller scale for map overlay
         _animations: {
-          [isWalking ? 'Walking' : 'BreathingIdle']: {speed: 1}
+            '*': {playing: true, speed: 1}
         },
         _lighting: 'flat',
-        pickable: false,
+        pickable: true,
       })
     ];
   }, [coords, isWalking]);
@@ -89,15 +91,16 @@ export default function MapComponent() {
         initialViewState={{
             longitude: coords.longitude,
             latitude: coords.latitude,
-            zoom: 17,
-            bearing: coords.heading || 0, // Use heading if available
+            zoom: 20,
+            bearing: coords.heading || 0, // Use device orientation or GPS heading
             pitch: 60
         }}
+        
         controller={true}
         layers={layers}
         style={{width: '100vw', height: '100vh'}}
         getTooltip={({object}: PickingInfo<GeolocationCoordinates>) => 
-          object ? {text: "Your location - 3D model marker"} : null
+          object ? {text: "You"} : null
         }
       >
         <Map
