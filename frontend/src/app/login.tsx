@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { User } from "./page";
+import dynamic from "next/dynamic";
+
+const CatchPage = dynamic(() => import("./catch"), { ssr: false });
 
 export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; setUser: React.Dispatch<React.SetStateAction<User>>; setLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [phone, setPhone] = useState("");
@@ -9,6 +12,8 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
   const [showName, setShowName] = useState(false);
   const [NamePage, setNamePage] = useState<React.ComponentType<{ user: User; setUser: React.Dispatch<React.SetStateAction<User>>; onContinue: () => void }> | null>(null);
   const [AvatarPage, setAvatarPage] = useState<React.ComponentType<{ user: User; setUser: React.Dispatch<React.SetStateAction<User>>, setLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }> | null>(null);
+  const [showCatch, setShowCatch] = useState(false);
+  const [catchTarget, setCatchTarget] = useState<{ name: string; avatar: string } | null>(null);
 
   // Format phone number as (XXX) XXX-XXXX
   function formatPhone(input: string) {
@@ -31,35 +36,9 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
     }
   }, [showBirthday, AvatarPage]);
 
-  // if (showName && NamePage) {
-  //   return (
-  //     <div className="animated-bg"
-  //       style={{
-  //         minHeight: "100vh",
-  //         display: "flex",
-  //         flexDirection: "column",
-  //         alignItems: "center",
-  //         justifyContent: "flex-start",
-  //         background:
-  //           `radial-gradient(circle at 70% 20%, #8e5fa2 0%, #6B4668 40%, transparent 70%),` +
-  //           `radial-gradient(circle at 30% 80%, #3B6B6B 0%, #2e4a4a 60%, transparent 90%),` +
-  //           `linear-gradient(120deg, var(--main-gradient-from, #6B4668) 0%, var(--main-gradient-to, #3B6B6B) 100%)`,
-  //         backgroundBlendMode: "screen, lighten, normal",
-  //         paddingTop: 40,
-  //         transition: "background 2s linear"
-  //       }}
-  //     >
-  //       <div style={{ width: "100%", maxWidth: 400, margin: "0 auto", maxHeight: "100vh", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
-  //         <div style={{ marginTop: 100, textAlign: "center" }}>
-  //           <div style={{ color: "#fff", fontSize: 28, fontWeight: 500, marginBottom: 24 }}>
-  //             What&apos;s your name?
-  //           </div>
-  //           <NamePage user={user} setUser={setUser} onContinue={() => setShowBirthday(true)} />
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
+  if (showCatch && catchTarget) {
+    return <CatchPage targetUser={catchTarget} onComplete={() => setShowCatch(false)} />;
+  }
 
   if (showBirthday && AvatarPage) {
     return <AvatarPage user={user} setUser={setUser} setLoggedIn={setLoggedIn} />;
@@ -68,6 +47,11 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
   if (showName && NamePage) {
     return <NamePage user={user} setUser={setUser} onContinue={() => setShowBirthday(true)} />;
   }
+
+  const peopleNearby: { name: string; avatar: string }[] = [
+    { name: "Ash", avatar: "/images/icon.png" },
+    { name: "Misty", avatar: "/images/icon.png" }
+  ];
 
   return (
     <div
@@ -164,6 +148,30 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
               </button>
             )}
           </div>
+        </div>
+        <div style={{ marginTop: 40, textAlign: "center" }}>
+          <div style={{ color: "#fff", fontSize: 20, marginBottom: 12 }}>Nearby People</div>
+          {peopleNearby.map(person => (
+            <div key={person.name} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 12, marginBottom: 10 }}>
+              <img src={person.avatar} alt={person.name} style={{ width: 40, height: 40, borderRadius: "50%", border: "2px solid #fff" }} />
+              <span style={{ color: "#fff", fontSize: 18 }}>{person.name}</span>
+              <button
+                style={{
+                  background: "#4e54c8",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 16,
+                  padding: "6px 18px",
+                  fontWeight: 600,
+                  cursor: "pointer"
+                }}
+                onClick={() => {
+                  setCatchTarget(person);
+                  setShowCatch(true);
+                }}
+              >Catch</button>
+            </div>
+          ))}
         </div>
       </div>
       <style>{`
