@@ -4,11 +4,8 @@ import { User } from "./page";
 
 const avatars = [
   "Timmy",
-  "Amy",
-  "TBD1",
-  "TBD2"
+  "Michelle",
 ];
-
 
 export default function AvatarPage({ user, setUser, setLoggedIn }: { user: User; setUser: React.Dispatch<React.SetStateAction<User>>; setLoggedIn: React.Dispatch<React.SetStateAction<boolean>> }) {
   const [selectedAvatar, setSelectedAvatar] = useState<number | null>(null);
@@ -130,7 +127,7 @@ export default function AvatarPage({ user, setUser, setLoggedIn }: { user: User;
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 28, justifyContent: "center", margin: "0 auto 40px auto", width: 220 }}>
               {avatars.map((src, i) => (
                 <button
-                  key={src}
+                  key={`images/${src}.png`}
                   onClick={() => setSelectedAvatar(i)}
                   style={{
                     border: selectedAvatar === i ? "3px solid #fff" : "2px solid #888",
