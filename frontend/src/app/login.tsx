@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export default function LoginPage({ onComplete }: { onComplete?: () => void } = {}) {
+export default function LoginPage({  }: { onComplete?: () => void } = {}) {
   const [phone, setPhone] = useState("");
   const [showBirthday, setShowBirthday] = useState(false);
 

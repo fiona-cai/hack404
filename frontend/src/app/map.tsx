@@ -1,6 +1,6 @@
 'use client';
 
-import Map, {Source} from 'react-map-gl/maplibre';
+import Map from 'react-map-gl/maplibre';
 import {DeckGL} from '@deck.gl/react';
 import {ScenegraphLayer} from '@deck.gl/mesh-layers';
 import type {PickingInfo} from '@deck.gl/core';

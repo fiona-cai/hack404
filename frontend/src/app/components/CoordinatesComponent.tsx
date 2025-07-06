@@ -2,27 +2,28 @@
 
 import { useEffect, useState, useCallback } from 'react';
 
-// import { Database } from '@/lib/database.types';
+import { Database } from '@/lib/database.types';
 import { createBrowserClient } from '@supabase/ssr';
-// type Coordinates = Database['public']['Tables']['coordinates']['Row'];
+type Coordinate = Database['public']['Tables']['coordinates']['Row'];
 
 interface CoordinatesComponentProps {
   render: (props: {
-    coordinates: Record<number, object>;
+    coordinates: Record<number, Coordinate>;
     getUserCount: () => number;
     getAllUserIds: () => number[];
     isConnected: boolean;
   }) => unknown;
 }
 
+
 function subscribeToCoordinates({
   onUpdate,
   onInsert,
   onDelete,
 }: {
-    onUpdate: (payload: { old, new }) => void;
-    onInsert: (payload: { new }) => void;
-    onDelete: (payload: { old }) => void;
+    onUpdate: (payload: { old: Coordinate, new: Coordinate }) => void;
+    onInsert: (payload: { new: Coordinate }) => void;
+    onDelete: (payload: { old: Coordinate }) => void;
 }) {
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || '',
@@ -37,7 +38,7 @@ function subscribeToCoordinates({
         event: 'INSERT',
         table: 'coordinates'
       },
-      (payload) => onInsert({ new: payload.new })
+      (payload) => onInsert({ new: payload.new as Coordinate })
     )
     .on(
       'postgres_changes',
@@ -46,7 +47,7 @@ function subscribeToCoordinates({
         event: 'UPDATE',
         table: 'coordinates'
       },
-      (payload) => onUpdate({ old: payload.old, new: payload.new })
+      (payload) => onUpdate({ old: payload.old as Coordinate, new: payload.new as Coordinate })
     )
     .on(
       'postgres_changes',
@@ -55,7 +56,7 @@ function subscribeToCoordinates({
         event: 'DELETE',
         table: 'coordinates'
       },
-      (payload) => onDelete({ old: payload.old })
+      (payload) => onDelete({ old: payload.old as Coordinate })
     )
     .subscribe();
 
@@ -63,7 +64,7 @@ function subscribeToCoordinates({
 }
 
 export default function CoordinatesComponent({ render }: CoordinatesComponentProps) {
-  const [coordinates, setCoordinates] = useState<Record<number, object>>({});
+  const [coordinates, setCoordinates] = useState<Record<number, Coordinate>>({});
   const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
@@ -78,10 +79,13 @@ export default function CoordinatesComponent({ render }: CoordinatesComponentPro
       const allCoords = await response.json();
       console.log(allCoords['coordinates'])
       setCoordinates(
-        allCoords['coordinates'].reduce((acc, coord) => {
-          acc[coord.user_id] = coord;
-          return acc;
-        }, {} as Record<number, object>)
+        allCoords['coordinates'].reduce(
+          (acc: Record<number, Coordinate>, coord: Coordinate) => {
+        acc[coord.user_id] = coord;
+        return acc;
+          },
+          {} as Record<number, Coordinate>
+        )
       );
 
       const channel = subscribeToCoordinates({
