@@ -136,7 +136,7 @@ export default function MapComponent() {
         {nearbyUsers.map(user => {
           if (!coords) return null;
           const dist = getDistanceMeters(
-            coords.latitude, coords.longitude,
+            coords.longitude, coords.latitude,
             user.latitude, user.longitude
           );
           return (
