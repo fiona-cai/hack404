@@ -12,7 +12,7 @@ export default function NamePage({ user, setUser, onContinue }: { user: User; se
       return;
     }
     setUser({ ...user, name: name.trim() });
-    onContinue();
+    onContinue(); // This will now trigger the avatar page in the parent
   }
 
   return (
