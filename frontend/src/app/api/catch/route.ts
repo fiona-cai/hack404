@@ -24,6 +24,7 @@ export async function POST(req: NextRequest) {
 
   // Generate a unique link (could use a JWT or random token)
   const token = Math.random().toString(36).substring(2, 10);
+  console.log(process.env.NEXT_PUBLIC_BASE_URL);
   const link = `${process.env.NEXT_PUBLIC_BASE_URL}/profile/${initiatorId}?token=${token}`;
 
   // Send SMS (real implementation)
