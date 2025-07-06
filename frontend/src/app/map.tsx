@@ -9,10 +9,18 @@ import { useEffect, useMemo, useState } from 'react';
 import { useOrientation } from "@uidotdev/usehooks";
 import {useGeolocated} from 'react-geolocated';
 
-export default function MapComponent() {
+type User = {
+  user_id: number;
+  latitude: number;
+  longitude: number;
+  avatar: string;
+  name: string;
+}
+
+export default function MapComponent({ avatar }: { avatar: string }) {
   const [isWalking, setIsWalking] = useState(false);
-  const [nearbyUsers, setNearbyUsers] = useState<any[]>([]);
-  const [catching, setCatching] = useState<string | null>(null);
+  const [nearbyUsers, setNearbyUsers] = useState<User[]>([]);
+  const [catching, setCatching] = useState<number | null>(null);
   const [catchSuccess, setCatchSuccess] = useState<string | null>(null);
   const [deviceHeading, setDeviceHeading] = useState<number>(0);
   const myUserId = 1; // TODO: Replace with real user id from auth
@@ -29,25 +37,47 @@ export default function MapComponent() {
   // Create the 3D model layer
   const layers = useMemo(() => {
     if (!coords) return [];
-    
-    console.log('Creating ScenegraphLayer with GLB:', '/models/timmy.glb');
-    
-    return [
-      new ScenegraphLayer<GeolocationCoordinates>({
-        id: 'person',
-        data: [coords],
-        getPosition: (d: GeolocationCoordinates ) => [d.longitude, d.latitude], // Use longitude and latitude for position
-        getOrientation: () => [0, 0, 90], // Keep model upright
-        scenegraph: '/models/timmy.glb',
-        sizeScale: 0.05, // Smaller scale for map overlay
+
+    // Helper to choose model based on avatar
+    const getModelForAvatar = (avatar: string) => {
+      if (avatar?.toLowerCase().includes('michelle')) return '/models/michelle.glb';
+      return '/models/timmy.glb';
+    };
+
+    // Current user layer
+    const userLayer = new ScenegraphLayer<GeolocationCoordinates>({
+      id: 'person-self',
+      data: [coords],
+      getPosition: (d: GeolocationCoordinates) => [d.longitude, d.latitude],
+      getOrientation: () => [0, 0, 90],
+      scenegraph: getModelForAvatar(avatar),
+      sizeScale: 0.05,
+      _animations: {
+        '*': { playing: true, speed: 1 }
+      },
+      _lighting: 'flat',
+      pickable: true,
+    });
+
+    // Nearby users layer
+    const nearbyLayers = nearbyUsers.map(user =>
+      new ScenegraphLayer<User>({
+        id: `person-${user.user_id}`,
+        data: [user],
+        getPosition: (u: User) => [u.longitude, u.latitude],
+        getOrientation: () => [0, 0, 90],
+        scenegraph: getModelForAvatar(user.avatar),
+        sizeScale: 0.05,
         _animations: {
-            '*': {playing: true, speed: 1}
+          '*': { playing: true, speed: 1 }
         },
         _lighting: 'flat',
         pickable: true,
       })
-    ];
-  }, [coords, isWalking]);
+    );
+
+    return [userLayer, ...nearbyLayers];
+  }, [coords, isWalking, nearbyUsers, avatar]);
 
   // Set up device orientation listener
   useEffect(() => {
@@ -192,8 +222,8 @@ export default function MapComponent() {
           );
           return (
             <div key={user.user_id} style={{marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10}}>
-              <img src={user.avatar_url || '/images/icon.png'} alt="avatar" style={{width: 36, height: 36, borderRadius: '50%', border: '2px solid #fff'}} />
-              <span style={{flex: 1}}>{user.display_name || `User ${user.user_id}`}</span>
+              <img src={`images/${user.avatar}`} alt="avatar" style={{width: 36, height: 36, borderRadius: '50%', border: '2px solid #fff'}} />
+              <span style={{flex: 1}}>{user.name || `User ${user.user_id}`}</span>
               {dist <= 10 ? (
                 <button
                   style={{background: '#4e54c8', color: '#fff', border: 'none', borderRadius: 12, padding: '6px 14px', fontWeight: 600, cursor: 'pointer'}}
@@ -207,7 +237,7 @@ export default function MapComponent() {
                       body: JSON.stringify({initiatorId: myUserId, targetId: user.user_id})
                     });
                     const data = await res.json();
-                    if (data.success) setCatchSuccess(user.display_name || `User ${user.user_id}`);
+                    if (data.success) setCatchSuccess(user.name || `User ${user.user_id}`);
                     setCatching(null);
                   }}
                 >{catching === user.user_id ? 'Catching...' : 'Catch'}</button>

@@ -112,7 +112,7 @@ export default function ClientHome() {
           return null; // Just for logging, actual rendering below
         }}
       />
-      <MapComponent />
+      <MapComponent avatar={user.avatar} />
     </>
   );
 }

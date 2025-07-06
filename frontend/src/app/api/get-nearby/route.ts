@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
     const { data: coordinates, error } = await supabase
         .from("coordinates")
-        .select("*");
+        .select("user_id, latitude, longitude, users (avatar, name)");
 
     if (error) {
         return new Response("Error fetching coordinates", { status: 500 });
