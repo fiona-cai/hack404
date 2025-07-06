@@ -27,7 +27,7 @@ export default async function UserProfilePage({ params }: { params: { id: string
   return (
     <div style={{ maxWidth: 400, margin: "40px auto", background: "#222", borderRadius: 24, padding: 32, color: "#fff", boxShadow: "0 4px 32px #0006" }}>
       <div style={{ textAlign: "center" }}>
-        <img src={user.avatar} alt={user.name} style={{ width: 120, height: 120, borderRadius: "50%", border: "3px solid #fff", marginBottom: 16 }} />
+        <img src={`images/${user.avatar}.png`} alt={user.name} style={{ width: 120, height: 120, borderRadius: "50%", border: "3px solid #fff", marginBottom: 16 }} />
         <h2 style={{ fontSize: 32, margin: "16px 0 8px" }}>{user.name}</h2>
         <div style={{ fontSize: 18, color: "#aaa", marginBottom: 12 }}>{user.phoneNumber}</div>
         <div style={{ fontSize: 20, fontWeight: 500, margin: "24px 0 8px" }}>Interests</div>
