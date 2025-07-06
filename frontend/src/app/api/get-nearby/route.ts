@@ -1,5 +1,5 @@
 import type { NextRequest } from "next/server";
-import supabase from "../../../../lib/database";
+import supabase from "../../../lib/database";
 
 export async function GET(request: NextRequest) {
     // Get user id query param

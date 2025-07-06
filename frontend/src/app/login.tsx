@@ -1,5 +1,6 @@
 "use client";
-import React, { useState } from "react";
+
+import { useEffect, useState } from "react";
 
 export default function LoginPage() {
   const [phone, setPhone] = useState("");
@@ -14,8 +15,15 @@ export default function LoginPage() {
     return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
   }
 
-  if (showBirthday) {
-    const AvatarPage = require("./avatar").default;
+  const [AvatarPage, setAvatarPage] = useState<React.ComponentType | null>(null);
+
+  useEffect(() => {
+    if (showBirthday && !AvatarPage) {
+      import("./avatar").then(module => setAvatarPage(() => module.default));
+    }
+  }, [showBirthday, AvatarPage]);
+
+  if (showBirthday && AvatarPage) {
     return <AvatarPage />;
   }
 

@@ -1,27 +1,27 @@
 'use client';
 
-import * as React from 'react';
 import Map, {Source} from 'react-map-gl/maplibre';
 import {DeckGL} from '@deck.gl/react';
 import {ScenegraphLayer} from '@deck.gl/mesh-layers';
 import type {PickingInfo} from '@deck.gl/core';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { useEffect, useMemo, useState } from 'react';
 
 type Coordinates = [longitude: number, latitude: number];
 
 export default function MapComponent() {
-  const [viewState, setViewState] = React.useState({
+  const [viewState, setViewState] = useState({
     longitude: -122.4, // Default fallback coordinates (San Francisco)
     latitude: 37.8,
     zoom: 17,
     bearing: -60,
     pitch: 60
   });
-  const [loading, setLoading] = React.useState(true);
-  const [userLocation, setUserLocation] = React.useState<Coordinates | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [userLocation, setUserLocation] = useState<Coordinates | null>(null);
 
   // Create the 3D model layer
-  const layers = React.useMemo(() => {
+  const layers = useMemo(() => {
     if (!userLocation) return [];
     
     return [
@@ -41,7 +41,7 @@ export default function MapComponent() {
     ];
   }, [userLocation]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {

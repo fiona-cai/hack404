@@ -1,0 +1,12 @@
+import supabase from '@/lib/database';
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(req: NextRequest) {
+    const { data, error } = await supabase
+      .from('coordinates')
+      .select('*');
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+    return NextResponse.json({ coordinates: data || [] }, { status: 200 });
+}

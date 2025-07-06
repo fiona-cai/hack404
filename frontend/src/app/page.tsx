@@ -1,13 +1,28 @@
-import MapComponent from "./map";
-import LoginPage from "./login";
+'use client';
 
-export default function Home() {
-  // TODO: Replace with real auth logic
-  const isLoggedIn = false;
+import CoordinatesComponent from './components/CoordinatesComponent';
+import LoginPage from './login';
+import MapComponent from './map';
+
+export default function ClientHome() {
+  const isLoggedIn = true; // replace with real auth logic
+
   if (!isLoggedIn) {
     return <LoginPage />;
   }
+
   return (
-    <MapComponent />
+    <>
+    <CoordinatesComponent
+      render={({ coordinates, isConnected, getUserCount }) => {
+        console.log('Coordinates:', coordinates);
+        console.log('Is connected:', isConnected);
+        console.log('User count:', getUserCount());
+        // return <MapComponent />;
+      }}
+    />
+    <MapComponent />;
+    {/* <>hi</> */}
+    </>
   );
 }
