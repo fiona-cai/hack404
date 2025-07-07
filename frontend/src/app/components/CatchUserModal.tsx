@@ -13,12 +13,16 @@ interface CatchUserModalProps {
   } | null;
   onCatch: (userId: number) => void;
   onClose: () => void;
+  setShowCatchAnimation: React.Dispatch<React.SetStateAction<{
+    targetUser: { name: string; avatar: string };
+  } | null>>;
 }
 
 export default function CatchUserModal({
   targetUser,
   onCatch,
-  onClose
+  onClose,
+  setShowCatchAnimation
 }: CatchUserModalProps) {
   const [isVisible, setIsVisible] = useState(true);
 
@@ -26,6 +30,13 @@ export default function CatchUserModal({
     setIsVisible(false);
     setTimeout(() => {
       onCatch(userId);
+      fetch('/api/catch', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ initiatorId: 34, targetId: userId }) // Replace 34 with actual initiator ID
+      });
       onClose();
     }, 500);
   };
@@ -81,6 +92,7 @@ export default function CatchUserModal({
               onCatch={handleCatch}
               onCancel={handleClose}
               className="transform-gpu"
+              setShowCatchAnimation={setShowCatchAnimation}
             />
           </motion.div>
         </motion.div>

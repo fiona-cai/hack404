@@ -58,9 +58,9 @@ export default function LoginPage({ user, setUser, setLoggedIn }: { user: User; 
           });
 
           setLoggedIn(true);
-          if (typeof window !== "undefined") {
-            window.location.reload();
-          }
+          // if (typeof window !== "undefined") {
+          //   window.location.reload();
+          // }
           return;
         }
       }

@@ -2,11 +2,13 @@ import type { NextRequest } from "next/server";
 import supabase from "../../../lib/database";
 
 export async function GET(request: NextRequest) {
-    // Get user id query param
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
     if (!userId) {
-        return new Response("User ID is required", { status: 400 });
+        return new Response(JSON.stringify({ error: "User ID is required" }), {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+        });
     }
 
     const { data: coordinates, error } = await supabase
@@ -14,30 +16,37 @@ export async function GET(request: NextRequest) {
         .select("user_id, latitude, longitude, users (avatar, name)");
 
     if (error) {
-        return new Response("Error fetching coordinates", { status: 500 });
+        return new Response(JSON.stringify({ error: "Error fetching coordinates" }), {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+        });
     }
 
     if (!coordinates || coordinates.length === 0) {
-        return new Response("No coordinates found", { status: 404 });
+        return new Response(JSON.stringify({ error: "No coordinates found" }), {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+        });
     }
 
-    // console.log("Fetched coordinates:", coordinates);
-
-    // Filter coordinates based on userId
     const nearbyCoordinates = coordinates.filter(coord => coord.user_id.toString() !== userId.toString());
     if (nearbyCoordinates.length === 0) {
-        return new Response("No nearby coordinates found", { status: 404 });
+        return new Response(JSON.stringify({ error: "No nearby coordinates found" }), {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+        });
     }
 
-    // Get everything in a 200-metre radius
     const userCoordinate = coordinates.find(coord => coord.user_id.toString() === userId.toString());
     if (!userCoordinate) {
-        return new Response("User coordinate not found", { status: 404 });
+        return new Response(JSON.stringify({ error: "User coordinate not found" }), {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+        });
     }
 
-    // Helper function for accurate distance calculation using Haversine formula
     function getDistanceMeters(lat1: number, lon1: number, lat2: number, lon2: number): number {
-        const R = 6371000; // Earth's radius in meters
+        const R = 6371000;
         const toRad = (deg: number) => deg * Math.PI / 180;
         const dLat = toRad(lat2 - lat1);
         const dLon = toRad(lon2 - lon1);
@@ -55,17 +64,15 @@ export async function GET(request: NextRequest) {
             coord.latitude!,
             coord.longitude!
         );
-
-        console.log(`Distance from user ${userCoordinate.user_id} to user ${coord.user_id}: ${distance.toFixed(2)}m`);
-
-        return distance <= 200; // 200 meters radius
+        return distance <= 200;
     });
 
     if (nearby.length === 0) {
-        return new Response("No nearby coordinates found within 200 metres", { status: 404 });
+        return new Response(JSON.stringify({ error: "No nearby coordinates found within 200 metres" }), {
+            status: 404,
+            headers: { "Content-Type": "application/json" },
+        });
     }
-
-    // console.log("Nearby coordinates for user ID", userId, ":", nearby);
 
     return new Response(JSON.stringify(nearby), {
         status: 200,

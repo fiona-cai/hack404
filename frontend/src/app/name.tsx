@@ -64,7 +64,7 @@ export default function NamePage({ user, setUser, onContinue }: { user: User; se
           <button
             onClick={handleContinue}
             style={{
-              background: name.trim() ? "#0000" : "#444",
+              background: name.trim() ? "#000" : "#444",
               color: "#fff",
               border: "none",
               borderRadius: 20,
